@@ -16,18 +16,16 @@ export const blogRouter = new Hono<{
 
 // jwt auth middleware
 blogRouter.use("/*", async (c, next) => {
-  const header = c.req.header("Authorization") || "";
-
+  const header = c.req.header("authorization") || "";
+    console.log(header)
   try {
     if (!header) {
       c.status(401);
       return c.json({ error: "Unauthorized" });
     }
     const token = header.split(" ")[1];
-
     //   in cloudflare decode just to get whats in payload/token
     const res = await verify(token, c.env.JWT_SECRET);
-
     if (!res) {
       c.status(401);
       return c.json({ error: "unauthorized" });
@@ -106,7 +104,18 @@ blogRouter.get("/bulk", async (c) => {
     }).$extends(withAccelerate());
     
     console.log(c.get("userId"));
-    const blogs = await prisma.blog.findMany();
+    const blogs = await prisma.blog.findMany({
+        select:{
+            content:true,
+            title:true,
+            id:true,
+            author:{
+                select:{
+                    username:true
+                }
+            }
+        }
+    });
     
     return c.json({
     blogs
@@ -123,11 +132,22 @@ blogRouter.get("/:id", async (c) => {
 //   const body = await c.req.json();
   const id = c.req.param("id");
   try {
+
     const blog = await prisma.blog.findFirst({
-      where: {
-        id,
-      },
-    });
+        where:{
+            id
+        },
+        select: {
+            id:true,
+            title:true,
+            content:true,
+            author:{
+                select: {
+                    username:true
+                }
+            }
+        }
+    })
 
     return c.json({
       blog,

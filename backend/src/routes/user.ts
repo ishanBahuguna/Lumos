@@ -2,8 +2,7 @@ import { Hono } from "hono";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { PrismaClient } from "@prisma/client/edge";
 import { decode, sign, verify } from "hono/jwt";
-import { signinInput } from "@ishan_bahuguna/lumos-common";
-
+import { signinInput, signupInput } from "@ishan_bahuguna/lumos-common";
 
 
 // Create the main Hono app
@@ -33,14 +32,22 @@ userRouter.post("/signup", async (c) => {
 
 
 //   zod and password hash
-  const body = await c.req.json();
 
-  try {
+try {
+    const body = await c.req.json();
+    const {success} = signupInput.safeParse(body);
+
+    if(!success) {
+        c.status(400);
+        return c.json({
+            message: "Invalid inputs"
+        })
+    }
     const user = await prisma.user.create({
       data: {
+        username:body.username,
         email: body.email,
         password: body.password,
-   
       },
     });
 
@@ -48,7 +55,7 @@ userRouter.post("/signup", async (c) => {
 
     return c.json({
       message: "User created successfully",
-      token: token,
+      token: `Bearer ${token}`,
     });
   } catch (e) {
     c.status(403);
@@ -64,9 +71,20 @@ userRouter.post("/signin", async (c) => {
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const body = await c.req.json();
+
 
   try {
+    const body = await c.req.json();
+    const { success } = signinInput.safeParse(body);
+
+    if(!success) {
+        c.status(400);
+        return c.json({
+            message: "Invalid inputs"
+        })
+    }
+
+
     const user = await prisma.user.findUnique({
       where: {
         email: body.email,
@@ -83,8 +101,8 @@ userRouter.post("/signin", async (c) => {
 
     c.status(200);
     return c.json({
-      message: `Welcome ${user.name}`,
-      token: token,
+      message: `Welcome ${user.username}`,
+      token: `Bearer ${token}`,
     });
   } catch (e: any) {
     c.status(404);

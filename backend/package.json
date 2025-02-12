@@ -5,7 +5,7 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
-    "@ishan_bahuguna/lumos-common": "^1.0.0",
+    "@ishan_bahuguna/lumos-common": "^1.0.5",
     "@prisma/client": "^6.2.1",
     "@prisma/extension-accelerate": "^1.2.1",
     "hono": "^4.6.19",
