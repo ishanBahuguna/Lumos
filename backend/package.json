@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@ishan_bahuguna/lumos-common": "^1.0.5",
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.4.1",
     "@prisma/extension-accelerate": "^1.2.1",
     "hono": "^4.6.19",
     "prisma": "^6.2.1"

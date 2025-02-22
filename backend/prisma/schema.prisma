@@ -33,4 +33,5 @@ model Blog {
     title     String
     content   String
     published Boolean @default(false)
+    date      String 
 }

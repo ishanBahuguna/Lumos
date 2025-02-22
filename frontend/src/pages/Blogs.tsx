@@ -3,12 +3,12 @@ import { BlogCard } from "../components/BlogCard"
 import { BlogSkeleton } from "../components/BlogSkeleton";
 import { useBlogs } from "../hooks";
 
-export const Blogs = () => {
+ const Blogs = () => {
     const { loading, blogs } = useBlogs();
 
     if (loading) {
         return <div>
-            <Appbar /> 
+            <Appbar username={localStorage.getItem("username") || ""} /> 
             <div  className="flex justify-center">
                 <div>
                     <BlogSkeleton />
@@ -22,7 +22,7 @@ export const Blogs = () => {
     }
 
     return <div>
-        <Appbar />
+        <Appbar username={localStorage.getItem("username") || ""}/>
         <div  className="flex justify-center">
             <div>
                 {blogs.map(blog => <BlogCard
@@ -30,9 +30,11 @@ export const Blogs = () => {
                     authorName={blog.author.username || "Anonymous"}
                     title={blog.title}
                     content={blog.content}
-                    publishedDate={"2nd Feb 2024"}
+                    publishedDate={blog.date}
                 />)}
             </div>
         </div>
     </div>
 }
+
+export default Blogs;

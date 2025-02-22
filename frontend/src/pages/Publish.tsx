@@ -1,16 +1,22 @@
 import { Appbar } from "../components/Appbar"
 import axios from "axios";
-import { BACKEND_URL } from "../config";
+
 import { useNavigate } from "react-router-dom";
 import { ChangeEvent, useState } from "react";
 
-export const Publish = () => {
+import dotenv from "dotenv"
+
+dotenv.config();
+
+const BACKEND_URL= process.env.BACEND_URL
+
+const Publish = () => { 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const navigate = useNavigate();
 
     return <div>
-        <Appbar />
+        <Appbar username={localStorage.getItem("username") || ""} />
         <div className="flex justify-center w-full pt-8"> 
             <div className="max-w-screen-lg w-full">
                 <input onChange={(e) => {
@@ -29,6 +35,7 @@ export const Publish = () => {
                             Authorization: localStorage.getItem("token")
                         }
                     });
+      
                     navigate(`/blog/${response.data.id}`)
                 }} type="submit" className="mt-4 inline-flex items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
                     Publish post
@@ -52,3 +59,6 @@ function TextEditor({ onChange }: {onChange: (e: ChangeEvent<HTMLTextAreaElement
     </div>
     
 }
+
+
+export default Publish;

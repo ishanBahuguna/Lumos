@@ -5,7 +5,7 @@ import { useBlog } from "../hooks";
 import {useParams} from "react-router-dom";
 
 // atomFamilies/selectorFamilies
-export const Blog = () => {
+ const Blog = () => {
     const { id } = useParams();
     const {loading, blog} = useBlog({
         id: id || ""
@@ -13,7 +13,7 @@ export const Blog = () => {
 
     if (loading || !blog) {
         return <div>
-            <Appbar />
+            <Appbar username={localStorage.getItem("username") || ""}/>
             <div className="h-screen flex flex-col justify-center">
                 
                 <div className="flex justify-center">
@@ -26,3 +26,5 @@ export const Blog = () => {
         <FullBlog blog={blog} />
     </div>
 }
+
+export default Blog;

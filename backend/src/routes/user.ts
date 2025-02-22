@@ -40,9 +40,11 @@ try {
     if(!success) {
         c.status(400);
         return c.json({
+            success:false,
             message: "Invalid inputs"
         })
     }
+
     const user = await prisma.user.create({
       data: {
         username:body.username,
@@ -51,16 +53,21 @@ try {
       },
     });
 
+    console.log(user)
+
     const token = await sign({ userId: user.id }, c.env.JWT_SECRET);
 
     return c.json({
-      message: "User created successfully",
-      token: `Bearer ${token}`,
+        success:true,
+        message: "User created successfully",
+        username:user.username,
+        token: `Bearer ${token}`,
     });
-  } catch (e) {
+  } catch (e:any) {
     c.status(403);
     return c.json({
-      error: "error while signing up",
+        success:false,
+      error: e.message,
     });
   }
 });
@@ -111,6 +118,8 @@ userRouter.post("/signin", async (c) => {
     });
   }
 });
+
+
 
 
 

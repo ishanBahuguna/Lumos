@@ -50,16 +50,23 @@ blogRouter.post("/", async (c) => {
   const body = await c.req.json();
 
   try {
+      const date = new Date();
+        const publishedDate = date.toISOString().split('T')[0];
+    
     const blog = await prisma.blog.create({
       data: {
         title: body.title,
         content: body.content,
+        published : true,
+        date:publishedDate,
         authorId: c.get("userId"),
       },
     });
 
+    console.log(publishedDate);
     return c.json({
       id: blog.id,
+        publishedDate,
       message: "Blog created successfully",
     });
   } catch (e: any) {
@@ -109,6 +116,7 @@ blogRouter.get("/bulk", async (c) => {
             content:true,
             title:true,
             id:true,
+            date:true,
             author:{
                 select:{
                     username:true
@@ -116,9 +124,11 @@ blogRouter.get("/bulk", async (c) => {
             }
         }
     });
+
+
     
     return c.json({
-    blogs
+        blogs
 });
 });
 
@@ -141,6 +151,7 @@ blogRouter.get("/:id", async (c) => {
             id:true,
             title:true,
             content:true,
+            date:true,
             author:{
                 select: {
                     username:true

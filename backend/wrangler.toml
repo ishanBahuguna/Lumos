@@ -5,5 +5,5 @@ compatibility_date = "2025-01-28"
 # compatibility_flags = [ "nodejs_compat" ]
 
  [vars]
-DATABASE_URL="" 
-JWT_SECRET = ""
+DATABASE_URL=
+JWT_SECRET = 
