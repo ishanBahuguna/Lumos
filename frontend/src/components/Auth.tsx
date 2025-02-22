@@ -28,7 +28,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
       console.log(res);
       if (res.success) {
         localStorage.setItem("token", res.token);
-
+        localStorage.setItem("username", res.username);
         navigate("/blogs");
       } else {
         setError(res.message);
