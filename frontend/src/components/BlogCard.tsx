@@ -37,66 +37,7 @@ export const BlogCard = ({
         </Link>
       );
 
-    // return (
-    //     <Link to={`/blog/${id}`} className="block">
-    //       <div className="p-6 border border-slate-300 rounded-2xl shadow-lg transition-transform transform hover:scale-105 bg-white max-w-screen-md mx-auto cursor-pointer mb-8">
-    //         <div className="flex items-center gap-3 mb-4">
-    //           <Avatar name={authorName} />
-    //           <div className="text-sm text-slate-700">{authorName}</div>
-    //           <div className="w-1 h-1 bg-slate-400 rounded-full" />
-    //           <div className="text-sm text-slate-500">{publishedDate}</div>
-    //         </div>
-      
-    //         <h2 className="text-2xl font-bold text-slate-900 mb-2">{title}</h2>
-      
-    //         <p className="text-md text-slate-600 line-clamp-3">
-    //           {content.slice(0, 100) + "..."}
-    //         </p>
-    //       </div>
-    //     </Link>
-    //   );
-      
 
-    // return (
-    //     <Link to={`/blog/${id}`} className="block">
-    //       <div className="p-6 border border-slate-300 rounded-2xl shadow-lg transition-transform transform hover:scale-105 bg-white max-w-screen-md mx-auto cursor-pointer">
-    //         <div className="flex items-center gap-3 mb-4">
-    //           <Avatar name={authorName} />
-    //           <div className="text-sm text-slate-700">{authorName}</div>
-    //           <div className="w-1 h-1 bg-slate-400 rounded-full" />
-    //           <div className="text-sm text-slate-500">{publishedDate}</div>
-    //         </div>
-      
-    //         <h2 className="text-2xl font-bold text-slate-900 mb-2">{title}</h2>
-      
-    //         <p className="text-md text-slate-600 line-clamp-3">
-    //           {content.slice(0, 100) + "..."}
-    //         </p>
-    //       </div>
-    //     </Link>
-    //   );
-
-
-    // return <Link to={`/blog/${id}`}>
-    //     <div className="p-4 border-b border-slate-200 pb-4 w-screen max-w-screen-md cursor-pointer">
-    //         <div className="flex">
-    //             <Avatar name={authorName} />
-    //             <div className="font-extralight pl-2 text-sm flex justify-center flex-col">{authorName}</div>
-    //             <div className="flex justify-center flex-col pl-2 flex justify-center flex-col">
-    //                 <Circle />
-    //             </div>
-    //             <div className="pl-2 font-thin text-slate-500 text-sm flex justify-center flex-col">
-    //                 {publishedDate}
-    //             </div>
-    //         </div>
-    //         <div className="text-xl font-semibold pt-2">
-    //             {title}
-    //         </div>
-    //         <div className="text-md font-thin">
-    //             {content.slice(0, 100) + "..."}
-    //         </div>
-    //     </div>
-    // </Link>
 }
 
 export function Circle() {
