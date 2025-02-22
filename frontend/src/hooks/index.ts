@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import dotenv from "dotenv"
 
-dotenv.config();
-
-const BACKEND_URL= process.env.BACEND_URL
+import { BACKEND_URL } from "../tsconfig";
 
 export interface Blog {
   content: string;

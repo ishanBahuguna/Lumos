@@ -1,14 +1,9 @@
 import { Appbar } from "../components/Appbar"
 import axios from "axios";
-
+import { BACKEND_URL } from "../tsconfig";
 import { useNavigate } from "react-router-dom";
 import { ChangeEvent, useState } from "react";
 
-import dotenv from "dotenv"
-
-dotenv.config();
-
-const BACKEND_URL= process.env.BACEND_URL
 
 const Publish = () => { 
     const [title, setTitle] = useState("");

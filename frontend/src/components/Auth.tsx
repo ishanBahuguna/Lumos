@@ -4,12 +4,7 @@ import { SignupInput } from "@ishan_bahuguna/lumos-common";
 import axios from "axios"
 import PopupModal from "./PopUpModal";
 import { Eye, EyeOff } from "lucide-react";
-import dotenv from "dotenv"
-
-dotenv.config();
-
-const BACKEND_URL= process.env.BACEND_URL
-
+import { BACKEND_URL } from "../tsconfig";
 
 export const Auth = ({ type }: { type: "signup" | "signin" }) => {
   const navigate = useNavigate();
