@@ -149,9 +149,9 @@ blogRouter.post("/lumi" , async(c) => {
             messages: [{ role: "user", content: `This is a blog u need fix its grammer and make it more catchy don't add more lines if u are not able to fix or understand the text return false nothing else: ${blog}` }],
           });
 
-        //   const lumiRes = msg.content[0]?.type === "text" ? msg.content[0].text : "No response";
+          const lumiRes = msg.content[0]?.type === "text" ? msg.content[0].text : "No response";
 
-          const lumiRes:string = msg.content[0]?.text || "No response"
+        //   const lumiRes:string = msg.content[0]?.text || "No response"
           console.log(lumiRes);
 
           return c.json({
