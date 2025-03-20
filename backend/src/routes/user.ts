@@ -95,7 +95,6 @@ userRouter.post("/signin", async (c) => {
     const user = await prisma.user.findUnique({
       where: {
         email: body.email,
-        password: body.password,
       },
     });
 
@@ -110,11 +109,13 @@ userRouter.post("/signin", async (c) => {
     return c.json({
       message: `Welcome ${user.username}`,
       token: `Bearer ${token}`,
+      success:true
     });
   } catch (e: any) {
     c.status(404);
     return c.json({
       message: e.message,
+      success:false
     });
   }
 });
