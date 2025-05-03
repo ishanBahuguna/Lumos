@@ -3,10 +3,14 @@ import axios from "axios";
 import { BACKEND_URL } from "../tsconfig";
 import { useNavigate } from "react-router-dom";
 import { ChangeEvent, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Spinner } from "../components/Spinner";
 
 const Publish = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const location = useLocation();
+  const [id, setId] = useState(location.state?.id || "");
+  const [title, setTitle] = useState(location.state?.title || "");
+  const [description, setDescription] = useState(location.state?.content || "");
   const [aiResponse, setAiResponse] = useState<string>("");
   const [showAiBox, setShowAiBox] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,22 +20,27 @@ const Publish = () => {
   const handleAskAI = async () => {
     try {
       setLoading(true);
+      setAiResponse(""); // Clear previous response
       setShowAiBox(true);
 
-      const response = await axios.post(`${BACKEND_URL}/api/v1/blog/lumi`, {
-        title,
-        blog: description,
-      } , {
-        headers:{
-            Authorization:localStorage.getItem("token")
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/blog/lumi`,
+        {
+          title,
+          blog: description,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
         }
-      });
+      );
 
       setAiResponse(response.data.blog || "No response from AI.");
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching AI response:", error);
       setAiResponse("Error fetching AI response.");
+    } finally {
       setLoading(false);
     }
   };
@@ -39,9 +48,11 @@ const Publish = () => {
   // Publish the blog
   const handlePublish = async () => {
     try {
+      setLoading(true);
       const response = await axios.post(
         `${BACKEND_URL}/api/v1/blog`,
         {
+          id,
           title,
           content: description,
         },
@@ -51,31 +62,43 @@ const Publish = () => {
           },
         }
       );
-
+      setLoading(false);
       navigate(`/blog/${response.data.id}`);
     } catch (error) {
       console.error("Error publishing blog:", error);
+      setLoading(false);
     }
   };
+
+  if (loading && !showAiBox) {
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Appbar username={localStorage.getItem("username") || ""} />
 
       <div className="flex justify-center w-full pt-8">
-        <div className={`max-w-screen-lg w-full transition-all ${showAiBox ? 'mr-96' : ''}`}>
-          {/* Title Input */}
+        <div
+          className={`max-w-screen-lg w-full transition-all ${
+            showAiBox ? "mr-96" : ""
+          }`}
+        >
+          <label>Title</label>
           <input
+            value={title}
             onChange={(e) => setTitle(e.target.value)}
             type="text"
             className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm"
             placeholder="Title"
           />
+          <br />
+          <label>Description</label>
+          <TextEditor
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
 
-          {/* Text Editor */}
-          <TextEditor value={description} onChange={(e) => setDescription(e.target.value)} />
-
-          {/* Button Container */}
           <div className="flex gap-4 mt-4">
             <button
               onClick={handlePublish}
@@ -85,7 +108,6 @@ const Publish = () => {
               Publish post
             </button>
 
-            {/* Ask AI Button */}
             <button
               onClick={handleAskAI}
               className="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 transition"
@@ -101,11 +123,13 @@ const Publish = () => {
             <h3 className="text-lg font-semibold mb-4">AI Response</h3>
 
             {loading ? (
-              <div className="flex justify-center items-center">
+              <div className="flex justify-center items-center h-24">
                 <div className="w-8 h-8 border-t-4 border-blue-600 rounded-full animate-spin"></div>
               </div>
             ) : (
-              <p className="text-gray-800 mb-6">{aiResponse}</p>
+              <p className="text-gray-800 mb-6 whitespace-pre-line">
+                {aiResponse}
+              </p>
             )}
 
             <div className="flex justify-end gap-4">
@@ -143,7 +167,9 @@ function TextEditor({
 }) {
   return (
     <div className="mt-4">
-      <label htmlFor="editor" className="sr-only">Publish post</label>
+      <label htmlFor="editor" className="sr-only">
+        Publish post
+      </label>
       <textarea
         id="editor"
         rows={8}

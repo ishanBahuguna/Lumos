@@ -5,9 +5,11 @@ import axios from "axios"
 import PopupModal from "./PopUpModal";
 import { Eye, EyeOff } from "lucide-react";
 import { BACKEND_URL } from "../tsconfig";
+import { Spinner } from "./Spinner";
 
 export const Auth = ({ type }: { type: "signup" | "signin" }) => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
 
   async function sendRequest() {
     try {
+        setLoading(true);
       const response = await axios.post(
         `${BACKEND_URL}/api/v1/user/${type === "signup" ? "signup" : "signin"}`,
         postInputs
@@ -36,11 +39,17 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
       }
 
     } catch (e:any) {
+        setLoading(false);
       setError(e.message);
       setShowModal(true);
     }
   }
 
+  if (loading) {
+    return (
+        <Spinner/>
+    );
+  }
   return (
     <div className="h-screen flex justify-center flex-col">
       <div className="flex justify-center">
@@ -119,6 +128,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
                 <PopupModal
                   message={error || "Internal Sever error"}
                   onClose={() => {
+    
                     setShowModal(false);
                     setError(null);
                     window.location.reload();

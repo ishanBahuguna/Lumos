@@ -4,7 +4,6 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import { PrismaClient } from "@prisma/client/edge";
 import { verify } from "hono/jwt";
 
-
 // import { streamText } from "../streamText";
 
 export const blogRouter = new Hono<{
@@ -35,7 +34,7 @@ blogRouter.use("/*", async (c, next) => {
       c.status(401);
       return c.json({ error: "unauthorized" });
     }
-
+    console.log(res.userId);
     c.set("userId", String(res.userId));
     await next();
   } catch (err) {
@@ -56,63 +55,49 @@ blogRouter.post("/", async (c) => {
   try {
     const date = new Date();
     const publishedDate = date.toISOString().split("T")[0];
+    let blog;
+    if(body.id) {
+        blog = await prisma.blog.update({
+            where: {
+            id: body.id,
+            },
+            data: {
+            title: body.title,
+            content: body.content,
+            published: true,
+            date: publishedDate,
+            },
+        });
+    } else {
+        blog = await prisma.blog.create({
+          data: {
+            title: body.title,
+            content: body.content,
+            published: true,
+            date: publishedDate,
+            authorId: c.get("userId"),
+          },
+        });
+    }
 
-    const blog = await prisma.blog.create({
-      data: {
-        title: body.title,
-        content: body.content,
-        published: true,
-        date: publishedDate,
-        authorId: c.get("userId"),
-      },
-    });
-
-    console.log(publishedDate);
     return c.json({
       id: blog.id,
       publishedDate,
-      message: "Blog created successfully",
+      message: body.id ? "Blog updated successfully" :  "Blog created successfully",
     });
   } catch (e: any) {
     c.status(406);
     return c.json({ error: e.message });
   }
 });
-
-blogRouter.post("/update", async (c) => {
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
-
-  const body = await c.req.json();
-
-  try {
-    const blog = await prisma.blog.update({
-      where: {
-        id: body.id,
-      },
-      data: {
-        title: body.title,
-        content: body.content,
-      },
-    });
-
-    return c.json({
-      id: blog.id,
-      message: "Blog updated successfully",
-    });
-  } catch (e: any) {
-    c.status(406);
-    return c.json({ error: e.message });
-  }
-});
+ 
 
 //Todo : add pagination
 blogRouter.get("/bulk", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
-
+  const userId = c.get("userId");
   console.log(c.get("userId"));
   const blogs = await prisma.blog.findMany({
     select: {
@@ -133,39 +118,69 @@ blogRouter.get("/bulk", async (c) => {
   });
 });
 
+blogRouter.get("/myBlogs", async (c) => {
+  try {
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate());
 
-blogRouter.post("/lumi" , async(c) => {
+    const userId = c.get("userId");
+    const blogs = await prisma.blog.findMany({
+      where: {
+        authorId: userId,
+        // published: true, // Optional: filter only published blogs
+      },
+      include: {
+        author: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
 
-    try {
-        const {title , blog} : {title : string , blog : string } = await c.req.json();
+    return c.json({
+      blogs,
+    });
+  } catch (e: any) {}
+});
 
-        const anthropic = new Anthropic({
-            apiKey: c.env.ANTHROPIC_API_KEY // defaults to process.env["ANTHROPIC_API_KEY"]
-          });
-          
-          const msg = await anthropic.messages.create({
-            model: "claude-3-7-sonnet-20250219",
-            max_tokens:50,
-            messages: [{ role: "user", content: `This is a blog u need fix its grammer and make it more catchy don't add more lines if u are not able to fix or understand the text return false nothing else: ${blog}` }],
-          });
+blogRouter.post("/lumi", async (c) => {
+  try {
+    const { title, blog }: { title: string; blog: string } = await c.req.json();
 
-          const lumiRes = msg.content[0]?.type === "text" ? msg.content[0].text : "No response";
+    const anthropic = new Anthropic({
+      apiKey: c.env.ANTHROPIC_API_KEY, // defaults to process.env["ANTHROPIC_API_KEY"]
+    });
 
-        //   const lumiRes:string = msg.content[0]?.text || "No response"
-          console.log(lumiRes);
+    const msg = await anthropic.messages.create({
+      model: "claude-3-7-sonnet-20250219",
+      max_tokens: 100,
+      messages: [
+        {
+          role: "user",
+          content: `Remember this is a blog you just have to make it pretty and you are allowed to extend upto 3 to 4 lines but not more than that. Another important thing is that if you are not able to do the job or not able to understand the context of the blog simply say that "Not able to fetch the response : Sorry Lumi is kid of Anthropic Claude and still learning" . Nothing extra should be done you should not even write a title just simple edit what is asked :\n ${blog}`,
+        },
+      ],
+    });
 
-          return c.json({
-            success:true,
-            blog:lumiRes
-          })
-    } catch (e : any) {
-        c.status(400)
-        return c.json({
-            message:e.message
-        })
-    }
+    const lumiRes =
+      msg.content[0]?.type === "text" ? msg.content[0].text : "No response";
 
-})
+    //   const lumiRes:string = msg.content[0]?.text || "No response"
+    console.log(lumiRes);
+
+    return c.json({
+      success: true,
+      blog: lumiRes,
+    });
+  } catch (e: any) {
+    c.status(400);
+    return c.json({
+      message: e.message,
+    });
+  }
+});
 
 // never use body to get id in get request instead use params or query params
 blogRouter.get("/:id", async (c) => {
@@ -176,6 +191,7 @@ blogRouter.get("/:id", async (c) => {
   //   const body = await c.req.json();
   const id = c.req.param("id");
   try {
+    const userId = c.get("userId");
     const blog = await prisma.blog.findFirst({
       where: {
         id,
@@ -185,6 +201,7 @@ blogRouter.get("/:id", async (c) => {
         title: true,
         content: true,
         date: true,
+        authorId: true,
         author: {
           select: {
             username: true,
@@ -194,10 +211,37 @@ blogRouter.get("/:id", async (c) => {
     });
 
     return c.json({
-      blog,
+      blog : {
+        ...blog,
+        userId
+      }
     });
   } catch (e: any) {
     c.status(406);
     return c.json({ error: e.message });
   }
 });
+
+
+
+blogRouter.delete("/:id", async (c) => {
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate());
+  
+    const id = c.req.param("id");
+    try {
+      const blog = await prisma.blog.delete({
+        where: {
+          id,
+        },
+      });
+  
+      return c.json({
+        message: "Blog deleted successfully",
+      });
+    } catch (e: any) {
+      c.status(406);
+      return c.json({ error: e.message });
+    }
+  });

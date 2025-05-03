@@ -45,6 +45,19 @@ try {
         })
     }
 
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: body.email,
+      },
+    });
+    if (existingUser) {
+      c.status(403);
+      return c.json({
+        success:false,
+        message: "User already exists",
+      });
+    }
+
     const user = await prisma.user.create({
       data: {
         username:body.username,
@@ -96,6 +109,7 @@ userRouter.post("/signin", async (c) => {
       where: {
         email: body.email,
       },
+      
     });
 
     if (!user) {
@@ -109,6 +123,7 @@ userRouter.post("/signin", async (c) => {
     return c.json({
       message: `Welcome ${user.username}`,
       token: `Bearer ${token}`,
+      username: user.username,
       success:true
     });
   } catch (e: any) {

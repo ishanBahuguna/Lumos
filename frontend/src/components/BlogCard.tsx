@@ -50,11 +50,11 @@ export function Circle() {
 
 export function Avatar({ name, size = "small" }: { name: string; size?: "small" | "big" }) {
     return (
-      <div
+        <div
         className={`relative inline-flex items-center justify-center overflow-hidden bg-gray-600 rounded-full ${
-          size === "small" ? "w-8 h-8" : "w-12 h-12"
-        }`}
-      >
+            size === "small" ? "w-8 h-8" : "w-12 h-12"
+            }`}
+            >
         <span
           className={`${
             size === "small" ? "text-sm" : "text-lg"
@@ -65,4 +65,8 @@ export function Avatar({ name, size = "small" }: { name: string; size?: "small" 
       </div>
     );
   }
+
+  
+
+
   
