@@ -8,7 +8,7 @@ import { Spinner } from "../components/Spinner";
 
 const Publish = () => {
   const location = useLocation();
-  const [id, setId] = useState(location.state?.id || "");
+  const id = location.state?.id || "";
   const [title, setTitle] = useState(location.state?.title || "");
   const [description, setDescription] = useState(location.state?.content || "");
   const [aiResponse, setAiResponse] = useState<string>("");
